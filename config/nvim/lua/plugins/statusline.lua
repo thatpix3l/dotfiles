@@ -2,12 +2,8 @@ return {
     "nvim-lualine/lualine.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-
-        -- Hide command line
-        vim.opt.cmdheight = 0
-
         -- Escape a string containing lua special characters
-        local function literalize(str)
+        local literalize = function(str)
             return str:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", function(c) return "%" .. c end)
         end
 
@@ -22,8 +18,17 @@ return {
                 lualine_x = { "searchcount" },
                 lualine_y = { "filetype" },
                 lualine_z = { "progress" }
+            },
+            options = {
+                component_separators = {
+                    right = '',
+                    left = ''
+                },
+                section_separators = {
+                    right = '',
+                    left = ''
+                }
             }
         }
-
     end
 }

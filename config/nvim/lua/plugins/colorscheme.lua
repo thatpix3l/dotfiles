@@ -1,7 +1,8 @@
 return {
-	'Shatur/neovim-ayu',
-	config = function()
-	    vim.opt.termguicolors = true
-	    vim.cmd.colorscheme('ayu')
-	end
+    'LunarVim/horizon.nvim',
+    config = function()
+        vim.opt.termguicolors = true
+        vim.cmd.colorscheme('horizon')
+    end
 }
+
