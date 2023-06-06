@@ -29,31 +29,26 @@ vim.opt.shiftwidth = 4   -- Indentation of 4
 vim.opt.tabstop = 4      -- Tabs width of 4
 vim.opt.expandtab = true -- Tabs to spaces
 
--- Space is leader key
+-- Space as leader key
 vim.g.mapleader = ' '
 
--- Font
-vim.opt.guifont = "FiraCode Nerd Font Mono"
-
-local cmdCallback = function(cmdStr)
-    return function()
-        vim.cmd(cmdStr)
-    end
-end
+-- Neovide-specific customizations
+vim.g.neovide_transparency = 0.95           -- Transparency
+vim.opt.guifont = "FiraCode Nerd Font Mono" -- Font
 
 -- Apply keymap of stuff without plugins
-local keymapVanilla = {
+local mappings = {
     { mode = "n", keystroke = "<leader>pv", action = vim.cmd.Ex },
-    { mode = "n", keystroke = "<A-k>",      action = "<C-y>k" },                      -- Scroll up, cursor stays
-    { mode = "n", keystroke = "<A-j>",      action = "<C-e>j" },                      -- Scroll down, cursor stays
-    { mode = "n", keystroke = "<leader>sh", action = cmdCallback("topleft vsp") },    -- Create split to the left
-    { mode = "n", keystroke = "<leader>sj", action = cmdCallback("botright split") }, -- Create split below
-    { mode = "n", keystroke = "<leader>sk", action = cmdCallback("topleft split") },  -- Create split above
-    { mode = "n", keystroke = "<leader>sl", action = cmdCallback("botright vsp") },   -- Create split to the right
+    { mode = "n", keystroke = "<A-k>",      action = "<C-y>k" },              -- Scroll up, cursor stays
+    { mode = "n", keystroke = "<A-j>",      action = "<C-e>j" },              -- Scroll down, cursor stays
+    { mode = "n", keystroke = "<leader>sh", action = ":topleft vsp<CR>" },    -- Create split to the left
+    { mode = "n", keystroke = "<leader>sj", action = ":botright split<CR>" }, -- Create split below
+    { mode = "n", keystroke = "<leader>sk", action = ":topleft split<CR>" },  -- Create split above
+    { mode = "n", keystroke = "<leader>sl", action = ":botright vsp<CR>" },   -- Create split to the right
 }
 
 -- Apply vanilla keymaps
-require("keymap").apply(keymapVanilla)
+require("keymap").apply(mappings)
 
 -- Boostrap "Lazy" package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -70,15 +65,6 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup('plugins')
-
--- LSP
--- local lsp = require('lsp-zero').preset({})
--- lsp.on_attach(function(_, bufnr)
---     lsp.default_keymaps({ buffer = bufnr })
--- end)
---
--- require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
--- lsp.setup()
 
 -- Apply autocommands
 require("autocommands").apply()
