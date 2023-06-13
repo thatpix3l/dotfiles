@@ -36,6 +36,47 @@ vim.g.mapleader = ' '
 vim.g.neovide_transparency = 0.95           -- Transparency
 vim.opt.guifont = "FiraCode Nerd Font Mono" -- Font
 
+local util = require("util")
+
+vim.api.nvim_create_user_command(
+    "Pad",
+    function(opts)
+        local padDirection = opts.fargs[1]
+        local isLeftpad
+        local promptStr
+
+        if padDirection == "left" then
+            isLeftpad = true
+            promptStr = "Prefix"
+        elseif padDirection == "right" then
+            isLeftpad = false
+            promptStr = "Suffix"
+        else
+            error("argument for \"Pad\" command is not \"left\" or \"right\"")
+        end
+
+        vim.ui.input(
+            { prompt = promptStr .. " Chars: " },
+            function(chars)
+                vim.ui.input(
+                    { prompt = "Pad Length: " },
+                    function(chosenLength)
+                        chosenLength = tonumber(chosenLength)
+                        local selection = util.get_visual_selection()
+
+                        vim.cmd.delete()
+                        vim.cmd.startinsert()
+                        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+                        vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col,
+                            { util.pad(selection, isLeftpad, chosenLength, chars) })
+                    end
+                )
+            end
+        )
+    end,
+    { nargs = 1 }
+)
+
 -- Apply keymap of stuff without plugins
 local mappings = {
     { mode = "n", keystroke = "<leader>pv", action = vim.cmd.Ex },
@@ -45,6 +86,7 @@ local mappings = {
     { mode = "n", keystroke = "<leader>sj", action = ":botright split<CR>" }, -- Create split below
     { mode = "n", keystroke = "<leader>sk", action = ":topleft split<CR>" },  -- Create split above
     { mode = "n", keystroke = "<leader>sl", action = ":botright vsp<CR>" },   -- Create split to the right
+    { mode = "n", keystroke = "<leader>cb", action = ":bd<CR>" }              -- Close buffer
 }
 
 -- Apply vanilla keymaps
