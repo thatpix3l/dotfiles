@@ -6,7 +6,7 @@ local manageSearch = function(char)
     if vim.fn.mode() == 'n' then
         if not vim.tbl_contains(keys, pressedKey) then
             vim.cmd("set nohlsearch")
-        elseif vim.tbl_contains(keys, pressedKey) then
+        else
             vim.cmd("set hlsearch")
         end
     end
@@ -79,14 +79,20 @@ vim.api.nvim_create_user_command(
 
 -- Apply keymap of stuff without plugins
 local mappings = {
-    { mode = "n", keystroke = "<leader>pv", action = vim.cmd.Ex },
-    { mode = "n", keystroke = "<A-k>",      action = "<C-y>k" },              -- Scroll up, cursor stays
-    { mode = "n", keystroke = "<A-j>",      action = "<C-e>j" },              -- Scroll down, cursor stays
+    { mode = "n", keystroke = "<C-w>",      action = "<C-y>k" },              -- Scroll up, cursor stays
+    { mode = "n", keystroke = "<C-s>",      action = "<C-e>j" },              -- Scroll down, cursor stays
     { mode = "n", keystroke = "<leader>sh", action = ":topleft vsp<CR>" },    -- Create split to the left
-    { mode = "n", keystroke = "<leader>sj", action = ":botright split<CR>" }, -- Create split below
-    { mode = "n", keystroke = "<leader>sk", action = ":topleft split<CR>" },  -- Create split above
+    { mode = "n", keystroke = "<leader>sj", action = ":botright split<CR>" }, -- Create split to the bottom
+    { mode = "n", keystroke = "<leader>sk", action = ":topleft split<CR>" },  -- Create split to the top
     { mode = "n", keystroke = "<leader>sl", action = ":botright vsp<CR>" },   -- Create split to the right
-    { mode = "n", keystroke = "<leader>cb", action = ":bd<CR>" }              -- Close buffer
+    { mode = "n", keystroke = "<S-w>",      action = "<C-w>+" },              -- Increase split height
+    { mode = "n", keystroke = "<S-s>",      action = "<C-w>-" },              -- Decrease split height
+    { mode = "n", keystroke = "<S-d>",      action = "<C-w>>" },              -- Increase split width
+    { mode = "n", keystroke = "<S-a>",      action = "<C-w><" },              -- Decrease split width
+    { mode = "n", keystroke = "<A-a>",      action = "0vg_:m .-2<CR>" },      -- Move line upward
+    { mode = "n", keystroke = "<A-d>",      action = "0vg_:m .+1<CR>" },      -- Move line downward
+    { mode = "n", keystroke = "<A-w>",      action = "j:left<CR>kgJ" },       -- Cut previous line, append to current line
+    -- { mode = "n", keystroke = "<A-s>",      action = "<A-a><A-w>",         { noremap = false } }, -- Cut next line, append to current line
 }
 
 -- Apply vanilla keymaps

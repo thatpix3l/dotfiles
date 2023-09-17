@@ -6,10 +6,18 @@ keymap.apply = function(mappings)
             error("keymap does not have all required fields")
         end
 
+        -- Add default options if no opts field already exists
+        if mapping.opts == nil then
+            mapping.opts = {
+                silent = true -- Do not show output for mapping
+            }
+        end
+
         vim.keymap.set(
             mapping.mode,
             mapping.keystroke,
-            mapping.action
+            mapping.action,
+            mapping.opts
         )
     end
 end

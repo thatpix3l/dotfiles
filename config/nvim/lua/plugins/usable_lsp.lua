@@ -36,9 +36,22 @@ return {
         local luasnip = require("luasnip")
         local cmp = require("cmp")
 
+        -- Individual LSP config setups
+
+        -- Lua
         require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
+
+        -- Java
+        require('lspconfig').jdtls.setup({
+            root_dir = function()
+                return vim.fs.dirname(vim.fs.find(
+                    { '.gradlew', '.gitignore', 'mvnw', 'build.grade.kts' }, { upward = true })[1]) .. "\\"
+            end
+        })
+
         lsp.setup()
 
+        -- Autocompletion stuff...
         cmp.setup {
             mapping = {
                 -- Enter in insert mode accepts suggested completion
@@ -90,10 +103,15 @@ return {
         local keymap = {
             {
                 mode = "n",
-                keystroke = "<leader>fr",
+                keystroke = "<C-f>",
                 action = function()
                     builtin.lsp_references()
                 end
+            },
+            {
+                mode = "n",
+                keystroke = "<C-c>",
+                action = vim.diagnostic.open_float
             }
         }
 
