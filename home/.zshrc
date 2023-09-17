@@ -1,3 +1,6 @@
+# Set keybinds to emacs mode
+set -o emacs
+
 # Create directory for local ZSH data stuff
 ZSH_DATA_HOME="${HOME}/.local/share/zsh"
 ZSH_CACHE_HOME="${HOME}/.cache/zsh"
@@ -5,7 +8,7 @@ mkdir -p "${ZSH_DATA_HOME}" "${ZSH_CACHE_HOME}"
 
 # Set completion options
 autoload -Uz compinit
-compinit -d "${ZSH_CACHE_HOME}/zcompdump"
+compinit
 
 # Set ZSH history options
 setopt HIST_IGNORE_SPACE
@@ -17,6 +20,8 @@ setopt hist_verify
 setopt inc_append_history
 setopt share_history # share command history data
 HISTFILE="${ZSH_CACHE_HOME}/history"
+
+# LESS command history file
 LESSHISTFILE="$HOME/.local/share/less/history"
 
 # Load ZSH version control system
@@ -27,11 +32,8 @@ zstyle ':vcs_info:git:*' formats '%b '
 # Enable prompt subsitution
 setopt PROMPT_SUBST
 
-# BEGIN aliases
-
+# Aliases
 alias echop='printf "%s\n"' # echo stuff using printf
-
-# END   aliases
 
 # Left prompt codes for beginning
 p_l_b() {

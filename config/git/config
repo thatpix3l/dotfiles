@@ -1,0 +1,13 @@
+[commit]
+	gpgsign = true
+
+[init]
+	defaultBranch = main
+
+[user]
+	name = thatpix3l
+	email = git@thatpix3l.com
+	signingkey = 65BC2BFA28BC3CC7!
+
+[gpg]
+	program = /usr/bin/gpg
