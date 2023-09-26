@@ -8,9 +8,11 @@ keymap.apply = function(mappings)
 
         -- Add default options if no opts field already exists
         if mapping.opts == nil then
-            mapping.opts = {
-                silent = true -- Do not show output for mapping
-            }
+            mapping.opts = {}
+        end
+
+        if mapping.opts.silent == nil then
+            mapping.opts.silent = true -- By default, make all mappings silent
         end
 
         vim.keymap.set(
