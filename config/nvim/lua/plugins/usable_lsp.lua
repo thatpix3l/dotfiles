@@ -1,47 +1,40 @@
+local pum_next = function(nextChar)
+    return function()
+        return vim.fn.pumvisible() == 1 and "<C-n>" or nextChar
+    end
+end
+
+local pum_prev = function(prevChar)
+    return function()
+        return vim.fn.pumvisible() == 1 and "<C-p>" or prevChar
+    end
+end
+
 return {
-    'VonHeikemen/lsp-zero.nvim',
-    branch = 'v2.x',
+    "williamboman/mason-lspconfig.nvim",
     dependencies = {
         -- LSP Support
-        { 'neovim/nvim-lspconfig' }, -- Required
-        {
-            -- Optional
-            'williamboman/mason.nvim',
-            build = function()
-                pcall(vim.cmd, 'MasonUpdate')
-            end,
-        },
-        { 'williamboman/mason-lspconfig.nvim' }, -- Optional
-
-        -- Autocompletion
-        { 'hrsh7th/nvim-cmp' },     -- Required
-        { 'hrsh7th/cmp-nvim-lsp' }, -- Required
-        { 'L3MON4D3/LuaSnip' },     -- Required
-        { "nvim-telescope/telescope.nvim" }
+        "neovim/nvim-lspconfig",                      -- Neovim's LSP boilerplate
+        "williamboman/mason.nvim",                    -- LSP package manager
+        { "echasnovski/mini.nvim", version = false }, -- Bunch of function stuff, including basic completion engine
+        "ii14/emmylua-nvim"                           -- Completion for neovim's internal Lua APIs
     },
     config = function()
-        -- Attah LSP to buffer
-        local lsp = require('lsp-zero').preset({})
-        lsp.on_attach(function(_, bufnr)
-            lsp.default_keymaps({ buffer = bufnr })
-        end)
+        require("mason").setup()           -- Initialize LSP package manager
+        require("mason-lspconfig").setup() -- Initialize thing that communicates with lspconfig
 
-        -- Setup IDE-like tab completion
-        local has_words_before = function()
-            unpack = unpack or table.unpack
-            local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-            return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-        end
+        -- Lua setup
+        require("lspconfig").lua_ls.setup({
+            settings = {
+                Lua = {
+                    workspace = {
+                        library = vim.api.nvim_get_runtime_file("", true)
+                    }
+                }
+            }
+        })
 
-        local luasnip = require("luasnip")
-        local cmp = require("cmp")
-
-        -- Individual LSP config setups
-
-        -- Lua
-        require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
-
-        -- Java
+        -- Java setup
         require('lspconfig').jdtls.setup({
             root_dir = function()
                 return vim.fs.dirname(vim.fs.find(
@@ -49,72 +42,14 @@ return {
             end
         })
 
-        lsp.setup()
+        -- Load completion
+        require("mini.completion").setup()
 
-        -- Autocompletion stuff...
-        cmp.setup {
-            mapping = {
-                -- Enter in insert mode accepts suggested completion
-                ["<Enter>"] = cmp.mapping.confirm { select = true },
-
-                -- Insert mode: Tab cycles forward a suggested completion
-                ["<Tab>"] = cmp.mapping(
-                    function(fallback)
-                        if cmp.visible() then
-                            cmp.select_next_item()
-                            -- You could replace the expand_or_jumpable() calls with expand_or_locally_jumpable()
-                            -- they way you will only jump inside the snippet region
-                        elseif luasnip.expand_or_jumpable() then
-                            luasnip.expand_or_jump()
-                        elseif has_words_before() then
-                            cmp.complete()
-                        else
-                            fallback()
-                        end
-                    end,
-                    { "i", "s" }
-                ),
-
-                -- Insert mode: Shift-Tab cycles backward a suggested completion
-                ["<S-Tab>"] = cmp.mapping(
-                    function(fallback)
-                        if cmp.visible() then
-                            cmp.select_prev_item()
-                        elseif luasnip.jumpable(-1) then
-                            luasnip.jump(-1)
-                        else
-                            fallback()
-                        end
-                    end,
-                    { "i", "s" }
-                )
-
-            },
-            snippet = {
-                expand = function(args)
-                    luasnip.lsp_expand(args.body)
-                end
-            }
-
+        local binds = {
+            { mode = "i", keystroke = "<Tab>",   action = pum_next("<Tab>"),   opts = { expr = true } }, -- Tab to next completion match
+            { mode = "i", keystroke = "<S-Tab>", action = pum_prev("<S-Tab>"), opts = { expr = true } }  -- Tab to previous completion match
         }
 
-        -- Keymap for LSP-related stuff
-        local builtin = require("telescope.builtin")
-        local keymap = {
-            {
-                mode = "n",
-                keystroke = "<C-f>",
-                action = function()
-                    builtin.lsp_references()
-                end
-            },
-            {
-                mode = "n",
-                keystroke = "<C-c>",
-                action = vim.diagnostic.open_float
-            }
-        }
-
-        require("keymap").apply(keymap)
+        require("keymap").apply(binds)
     end
 }
