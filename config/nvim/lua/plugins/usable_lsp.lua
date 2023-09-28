@@ -23,24 +23,37 @@ return {
         require("mason").setup()           -- Initialize LSP package manager
         require("mason-lspconfig").setup() -- Initialize thing that communicates with lspconfig
 
-        -- Lua setup
-        require("lspconfig").lua_ls.setup({
-            settings = {
-                Lua = {
-                    workspace = {
-                        library = vim.api.nvim_get_runtime_file("", true)
+        local lspconfig = require("lspconfig")
+
+        -- Configuration of existing LSPs
+        local lsp_configs = {
+            -- Lua
+            lua_ls = {
+                settings = {
+                    Lua = {
+                        workspace = {
+                            library = vim.api.nvim_get_runtime_file("", true)
+                        }
                     }
                 }
-            }
-        })
+            },
 
-        -- Java setup
-        require('lspconfig').jdtls.setup({
-            root_dir = function()
-                return vim.fs.dirname(vim.fs.find(
-                    { '.gradlew', '.gitignore', 'mvnw', 'build.grade.kts' }, { upward = true })[1]) .. "\\"
-            end
-        })
+            -- Java
+            jdtls = {
+                root_dir = function()
+                    return vim.fs.dirname(vim.fs.find(
+                        { '.gradlew', '.gitignore', 'mvnw', 'build.grade.kts' }, { upward = true })[1]) .. "\\"
+                end
+            },
+
+            -- Go
+            gopls = {},
+        }
+
+        -- For each configured LSP, activate it
+        for lsp_name, config in pairs(lsp_configs) do
+            lspconfig[lsp_name].setup(config)
+        end
 
         -- Load completion
         require("mini.completion").setup()
