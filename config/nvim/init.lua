@@ -19,6 +19,9 @@ vim.opt.relativenumber = true
 vim.opt.number = true
 vim.opt.numberwidth = 1
 
+-- Always enable sign column (prevents text shifting)
+vim.opt.signcolumn = "yes"
+
 -- Absolute number is highlighted, relative numbers are grayed out
 vim.cmd("highlight LineNr guifg=#ffffff")
 vim.cmd("highlight LineNrAbove guifg=#575757")
@@ -91,8 +94,11 @@ local mappings = {
     { mode = "n", keystroke = "<S-a>",      action = "<C-w><" },              -- Decrease split width
     { mode = "n", keystroke = "<A-a>",      action = "0vg_:m .-2<CR>" },      -- Move line upward
     { mode = "n", keystroke = "<A-d>",      action = "0vg_:m .+1<CR>" },      -- Move line downward
-    { mode = "n", keystroke = "<A-w>",      action = "j:left<CR>kgJ" },       -- Cut previous line, append to current line
-    -- { mode = "n", keystroke = "<A-s>",      action = "<A-a><A-w>",         { noremap = false } }, -- Cut next line, append to current line
+    -- { mode = "n", keystroke = "<A-w>",      action = "j:left<CR>kgJ" }, -- Cut previous line, append to current line
+    -- { mode = "n", keystroke = "<A-s>",      action = "<A-a><A-w>",               opts = { noremap = false }}, -- Cut next line, append to current line
+    { mode = "n", keystroke = "<A-w>",      action = "j^d$k$pjddk$" },             -- Bring up next line onto end of current line
+    { mode = "n", keystroke = "<A-s>",      action = "k^d$j$pkdd$" },              -- Bring down previous line onto end of current line
+    { mode = "n", keystroke = "<S-z>",      action = vim.lsp.buf.signature_help }, -- Peek signature help under cursor
 }
 
 -- Apply vanilla keymaps
