@@ -1,9 +1,9 @@
 -- Turn off higlight when done searching
-vim.api.nvim_create_namespace('search')
-local keys = { '<CR>', 'n', 'N', '*', '#', '?', '/' }
+vim.api.nvim_create_namespace("search")
+local keys = { "<CR>", "n", "N", "*", "#", "?", "/" }
 local manageSearch = function(char)
     local pressedKey = vim.fn.keytrans(char)
-    if vim.fn.mode() == 'n' then
+    if vim.fn.mode() == "n" then
         if not vim.tbl_contains(keys, pressedKey) then
             vim.cmd("set nohlsearch")
         else
@@ -12,16 +12,19 @@ local manageSearch = function(char)
     end
 end
 
-vim.on_key(manageSearch, vim.api.nvim_create_namespace('search'))
+vim.on_key(manageSearch, vim.api.nvim_create_namespace("search"))
 
 -- Line numbering
-vim.opt.relativenumber = true
-vim.opt.number = true
-vim.opt.numberwidth = 1
-vim.opt.cursorline = true
+vim.opt.relativenumber = true -- enable relative numbers for all lines
+vim.opt.number = true         -- enable absolute number for current line
+vim.opt.numberwidth = 3       -- width for numbers column
+vim.opt.cursorcolumn = true   -- highlight cursor column
+vim.opt.cursorline = true     -- highlight cursor line
+vim.opt.signcolumn = "yes"    -- always enable sign column
 
--- Always enable sign column (prevents text shifting)
-vim.opt.signcolumn = "yes"
+-- Status line
+vim.opt.laststatus = 3                       -- global statusline
+vim.cmd("highlight WinSeparator guibg=none") -- transparent window separators
 
 -- Absolute number is highlighted, relative numbers are grayed out
 vim.cmd("highlight LineNr guifg=#ffffff")
@@ -34,61 +37,23 @@ vim.opt.tabstop = 4      -- Tabs width of 4
 vim.opt.expandtab = true -- Tabs to spaces
 
 -- Space as leader key
-vim.g.mapleader = ' '
+vim.g.mapleader = " "
 
 -- Neovide-specific customizations
 vim.g.neovide_transparency = 0.95           -- Transparency
 vim.opt.guifont = "FiraCode Nerd Font Mono" -- Font
 
-local util = require("util")
+local km = require("keymap")
+local acmds = require("autocommands")
 
-vim.api.nvim_create_user_command(
-    "Pad",
-    function(opts)
-        local padDirection = opts.fargs[1]
-        local isLeftpad
-        local promptStr
-
-        if padDirection == "left" then
-            isLeftpad = true
-            promptStr = "Prefix"
-        elseif padDirection == "right" then
-            isLeftpad = false
-            promptStr = "Suffix"
-        else
-            error("argument for \"Pad\" command is not \"left\" or \"right\"")
-        end
-
-        vim.ui.input(
-            { prompt = promptStr .. " Chars: " },
-            function(chars)
-                vim.ui.input(
-                    { prompt = "Pad Length: " },
-                    function(chosenLength)
-                        chosenLength = tonumber(chosenLength)
-                        local selection = util.get_visual_selection()
-
-                        vim.cmd.delete()
-                        vim.cmd.startinsert()
-                        local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-                        vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col,
-                            { util.pad(selection, isLeftpad, chosenLength, chars) })
-                    end
-                )
-            end
-        )
-    end,
-    { nargs = 1 }
-)
-
--- Apply keymap of stuff without plugins
-local mappings = {
+-- Apply key mappings
+km.apply({
     { mode = "n", keystroke = "<C-k>",      action = "<C-y>k" },                   -- Scroll up, cursor stays
     { mode = "n", keystroke = "<C-j>",      action = "<C-e>j" },                   -- Scroll down, cursor stays
-    { mode = "n", keystroke = "<leader>sh", action = ":topleft vsp<CR>" },         -- Create split to the left
-    { mode = "n", keystroke = "<leader>sj", action = ":botright split<CR>" },      -- Create split to the bottom
-    { mode = "n", keystroke = "<leader>sk", action = ":topleft split<CR>" },       -- Create split to the top
-    { mode = "n", keystroke = "<leader>sl", action = ":botright vsp<CR>" },        -- Create split to the right
+    { mode = "n", keystroke = "<leader>sk", action = ":topleft split<CR>" },       -- Create split north
+    { mode = "n", keystroke = "<leader>sj", action = ":botright split<CR>" },      -- Create split south
+    { mode = "n", keystroke = "<leader>sl", action = ":botright vsp<CR>" },        -- Create split east
+    { mode = "n", keystroke = "<leader>sh", action = ":topleft vsp<CR>" },         -- Create split west
     { mode = "n", keystroke = "<S-w>",      action = "<C-w>+" },                   -- Increase split height
     { mode = "n", keystroke = "<S-s>",      action = "<C-w>-" },                   -- Decrease split height
     { mode = "n", keystroke = "<S-d>",      action = "<C-w>>" },                   -- Increase split width
@@ -102,10 +67,28 @@ local mappings = {
     { mode = "v", keystroke = "<C-c>",      action = "\"+y" },                     -- Copy to system clipboard in visual mode
     { mode = "n", keystroke = "<C-S-v>",    action = "\"+p" },                     -- Paste from system clipboard in normal mode
     { mode = "t", keystroke = "<C-S-v>",    action = "<C-\\><C-n>\"+pi" }          -- Paste from system clipboard in terminal mode
-}
+})
 
--- Apply vanilla keymaps
-require("keymap").apply(mappings)
+-- Apply autocommands
+acmds.apply({
+    {
+        events = { "BufWritePre" },
+        opts = {
+            callback = function()
+                vim.lsp.buf.format()
+            end
+        }
+    },
+    {
+        events = { "TermOpen" },
+        opts = {
+            callback = function()
+                vim.opt_local.number = false
+                vim.opt_local.relativenumber = false
+            end
+        }
+    }
+})
 
 -- Boostrap "Lazy" package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -120,8 +103,4 @@ if not vim.loop.fs_stat(lazypath) then
     })
 end
 vim.opt.rtp:prepend(lazypath)
-
-require('lazy').setup('plugins')
-
--- Apply autocommands
-require("autocommands").apply()
+require("lazy").setup("plugins")
