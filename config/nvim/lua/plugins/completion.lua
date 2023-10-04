@@ -31,6 +31,7 @@ return {
 
             -- Java
             jdtls = {
+                single_file_support = true,
                 root_dir = function()
                     return vim.fs.dirname(vim.fs.find(
                         { '.gradlew', '.gitignore', 'mvnw', 'build.grade.kts' }, { upward = true })[1]) .. "\\"
@@ -40,6 +41,13 @@ return {
             -- Go
             gopls = {},
         }
+
+        -- Add message when an LSP gets attached
+        for k, v in pairs(lsp_configs) do
+            v.on_attach = function()
+                print("lsp server \"" .. k .. "\" attached")
+            end
+        end
 
         local cmp = require("cmp")
         local ls = require("luasnip")

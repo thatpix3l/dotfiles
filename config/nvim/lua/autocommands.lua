@@ -4,17 +4,27 @@ local autocommands = {}
 local m = {
     {
         events = { "BufWritePre" },
-        callback = function()
-            vim.lsp.buf.format()
-        end
+        opts = {
+            callback = function()
+                vim.lsp.buf.format()
+            end
+        }
+
+    },
+    {
+        events = { "TermOpen" },
+        opts = {
+            callback = function()
+                vim.opt_local.number = false
+                vim.opt_local.relativenumber = false
+            end
+        }
     }
 }
 
 autocommands.apply = function()
     for _, mapping in pairs(m) do
-        local events = mapping.events
-        mapping.events = nil
-        vim.api.nvim_create_autocmd(events, mapping)
+        vim.api.nvim_create_autocmd(mapping.events, mapping.opts)
     end
 end
 
