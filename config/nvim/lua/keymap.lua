@@ -1,18 +1,25 @@
 local keymap = {}
 
+local default_options = {
+    silent = true,
+    noremap = true
+}
+
 keymap.apply = function(mappings)
     for _, mapping in pairs(mappings) do
         if mapping.mode == nil or mapping.keystroke == nil or mapping.action == nil then
             error("keymap does not have all required fields")
         end
 
-        -- Add default options if no opts field already exists
         if mapping.opts == nil then
             mapping.opts = {}
         end
 
-        if mapping.opts.silent == nil then
-            mapping.opts.silent = true -- By default, make all mappings silent
+        -- Add list of default options
+        for opt, val in pairs(default_options) do
+            if mapping.opts[opt] == nil then
+                mapping.opts[opt] = val
+            end
         end
 
         vim.keymap.set(

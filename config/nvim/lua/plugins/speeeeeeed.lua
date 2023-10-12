@@ -5,7 +5,7 @@ return {
         leap.add_default_mappings()
         require("autocommands").apply({
             {
-                mode = "ColorScheme",
+                events = { "ColorScheme" },
                 opts = {
                     callback = function()
                         leap.init_highlight(true)
