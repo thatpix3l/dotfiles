@@ -40,6 +40,8 @@ return {
 
             -- Go
             gopls = {},
+            -- C
+            clangd = {}
         }
 
         -- Add message when an LSP gets attached
