@@ -1,3 +1,4 @@
 return {
-    "liangxianzhe/floating-input.nvim"
+	"stevearc/dressing.nvim",
+	opts = {}
 }

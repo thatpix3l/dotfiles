@@ -1,22 +1,11 @@
--- Turn off higlight when done searching
-vim.api.nvim_create_namespace("search")
-local keys = { "<CR>", "n", "N", "*", "#", "?", "/" }
-local manageSearch = function(char)
-    local pressedKey = vim.fn.keytrans(char)
-    if vim.fn.mode() == "n" then
-        if not vim.tbl_contains(keys, pressedKey) then
-            vim.cmd("set nohlsearch")
-        else
-            vim.cmd("set hlsearch")
-        end
-    end
-end
-
-vim.on_key(manageSearch, vim.api.nvim_create_namespace("search"))
+-- Turn off highlight if finished searching, until next search.
+vim.api.nvim_create_autocmd("CursorMoved", {
+    command = "nohlsearch"
+})
 
 -- Line numbering
-vim.opt.relativenumber = true -- enable relative numbers for all lines
-vim.opt.number = true         -- enable absolute number for current line
+vim.opt.relativenumber = true -- enable relative numbers
+vim.opt.number = true         -- enable absolute numbers
 vim.opt.numberwidth = 3       -- width for numbers column
 vim.opt.cursorcolumn = true   -- highlight cursor column
 vim.opt.cursorline = true     -- highlight cursor line
@@ -32,9 +21,8 @@ vim.cmd("highlight LineNrAbove guifg=#575757")
 vim.cmd("highlight LineNrBelow guifg=#575757")
 
 -- Indentation, tabs, spaces
-vim.opt.shiftwidth = 4   -- Indentation of 4
-vim.opt.tabstop = 4      -- Tabs width of 4
-vim.opt.expandtab = true -- Tabs to spaces
+vim.opt.shiftwidth = 4 -- Indentation of 4
+vim.opt.tabstop = 4    -- Tabs width of 4
 
 -- Space as leader key
 vim.g.mapleader = " "
